@@ -1,0 +1,35 @@
+<div class="{{ class }} block">
+
+    {% if jobs is defined and jobs is iterable %}
+        {% for job in jobs %}
+            <div class="job_item {{ job.cssClass }}">
+                <div class="content-text">
+                    {% block jobHeadline %}
+                        <h2>{{ job.title }}</h2>
+                    {% endblock %}
+                    {% block jobSubheadline %}
+                        {% if job.subheadline %}
+                            <h3>{{ job.subheadline }}</h3>
+                        {% endif %}
+                    {% endblock %}
+                    {% block jobImage %}
+                        {% if job.figure is defined and job.figure %}
+                            {% include '@ContaoCore/Image/Studio/figure.html.twig' with { figure: job.figure } only %}
+                        {% endif %}
+                    {% endblock %}
+                    {% block jobTeaser %}
+                        {{ (job.teaser ?? '')|raw }}
+                    {% endblock %}
+                    {% block jobReadmore %}
+                        {% if job.readerPage %}
+                            <p>
+                                <a href="{{ job.alias }}">{{ 'MSC.more'|trans({}, 'contao_default') }}</a>
+                            </p>
+                        {% endif %}
+                    {% endblock %}
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+</div>

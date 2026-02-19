@@ -1,0 +1,8 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  Plakart\ContaoJobsBundle\:
+    resource: ../src
+    exclude: ../src/{ContaoManager,Helper,DependencyInjection,ContaoJobsBundle.php}

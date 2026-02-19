@@ -1,0 +1,57 @@
+{% extends "@Contao/block_searchable" %}
+
+{% block content %}
+    <div class="job_element{% if form %} with--form{% endif %} {{ cssClass }}">
+        {% block textElements %}
+            <div class="job_details">
+                <div class="job_texts">
+                    {% block jobHeadline %}
+                        <h1>{{ title }}</h1>
+                    {% endblock %}
+                    {% block jobSubheadline %}
+                        {% if subheadline is defined and subheadline %}
+                            <h2 class="subheadline">{{ subheadline }}</h2>
+                        {% endif %}
+                    {% endblock %}
+                    {% block jobTeaser %}
+                        {% if teaser is defined and teaser %}
+                            <div class="content-text teaser">
+                                {{ teaser|raw }}
+                            </div>
+                        {% endif %}
+                    {% endblock %}
+                    {% block jobText %}
+                        {{ (text ?? '')|raw }}
+                    {% endblock %}
+                </div>
+                {% block jobImage %}
+                    {% if figure is defined and figure %}
+                    <div class="job_image">
+                        {% include '@ContaoCore/Image/Studio/figure.html.twig' with { figure: figure } only %}
+                    </div>
+                    {% endif %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+        {% block formElement %}
+            {% if form %}
+                <div class="job_form">
+                    {{ form|raw }}
+                </div>
+            {% endif %}
+        {% endblock %}
+    </div>
+    {% block goBack %}
+        <div class="goBack">
+            <a href="{{ goBack }}">{{ 'MSC.goBack'|trans({}, 'contao_default') }}</a>
+        </div>
+    {% endblock %}
+
+    {% block googleForJobsSchema %}
+        {% if addGfjSchema %}
+            <script type="application/ld+json">
+              {{ gfj|raw }}
+            </script>
+        {% endif %}
+    {% endblock %}
+{% endblock %}

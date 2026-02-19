@@ -1,0 +1,50 @@
+<?php
+use Contao\Input;
+use Contao\StringUtil;
+use Plakart\ContaoJobsBundle\Model\PlakartJobsModel;
+
+$alias = Input::get('auto_item') ?? null;
+$options = [];
+
+if($alias) {
+    $job = PlakartJobsModel::findByIdOrAlias($alias);
+} else {
+    if($allJobs = PlakartJobsModel::findPublished()) {
+        while($allJobs->next()) {
+            $job = $allJobs->current();
+            $options[$job->id] = $job->title;
+        }
+    }
+}
+?>
+
+<?php $this->block('label'); ?>
+<?php if ($this->label && !$alias): ?>
+    <label for="ctrl_<?= $this->id ?>"<?php if ($this->class): ?> class="<?= $this->class ?>"<?php endif; ?>>
+        <?php if ($this->mandatory): ?>
+            <span class="invisible"><?= $this->mandatoryField ?> </span><?= $this->label ?><span class="mandatory">*</span>
+        <?php else: ?>
+            <?= $this->label ?>
+        <?php endif; ?>
+    </label>
+<?php endif; ?>
+<?php $this->endblock(); ?>
+
+<?php $this->block('field'); ?>
+<?php if ($this->hasErrors()): ?>
+    <p class="error"><?= $this->getErrorAsString() ?></p>
+<?php endif; ?>
+
+<?php if($alias): ?>
+    <input type="hidden" name="<?= $this->name ?>" value="<?= (int) ($job->id ?? 0) ?>">
+<?php else: ?>
+    <select name="<?= $this->name ?>" id="ctrl_<?= $this->id ?>" class="<?= $this->class ?>"<?= $this->getAttributes() ?>>
+        <option value="">Bitte auswählen</option>
+        <?php foreach ($options as $k => $v): ?>
+            <option value="<?= (int) $k ?>"><?= StringUtil::specialchars((string) $v) ?></option>
+        <?php endforeach; ?>
+    </select>
+<?php endif; ?>
+
+
+<?php $this->endblock(); ?>
