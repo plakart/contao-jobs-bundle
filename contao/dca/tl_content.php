@@ -13,7 +13,6 @@ declare(strict_types=1);
  */
 
 use Contao\System;
-use Plakart\ContaoJobsBundle\Helper\CategoriesHandler;
 
 System::loadLanguageFile('tl_content');
 
