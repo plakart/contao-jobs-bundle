@@ -5,4 +5,4 @@ services:
 
   Plakart\ContaoJobsBundle\:
     resource: ../src
-    exclude: ../src/{ContaoManager,Helper,DependencyInjection,ContaoJobsBundle.php}
+    exclude: ../src/{ContaoManager,Helper,DependencyInjection,Model,ContaoJobsBundle.php}
