@@ -68,17 +68,17 @@ class PrepareJobData
 
     public static function gfjCompanyStreetAddress(string|null $street = null, string|null $streetNr = null):string
     {
-        return $street ? $street : (Config::get('company') . ' ' . $streetNr ? $streetNr : Config::get('streetNr'));
+        return $street ?: Config::get('street') . ' ' . $streetNr ?: Config::get('streetNr');
     }
 
     public static function gfjCompanyZip(string|null $zip = null):string
     {
-        return $zip ?? Config::get('zip');
+        return $zip ?: (string) Config::get('zip');
     }
 
     public static function gfjCompanyCity(string|null $city = null):string
     {
-        return $city ?? Config::get('city');
+        return $city ?: Config::get('city');
     }
 
     public static function gfjCompanyLogo():string
