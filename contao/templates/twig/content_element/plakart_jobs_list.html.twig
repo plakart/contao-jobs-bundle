@@ -3,6 +3,7 @@
 {% block content %}
     {% if jobs is defined and jobs is iterable %}
         {% for job in jobs %}
+            {% block jobItem %}
             <div class="job_item {{ job.cssClass }}">
                 <div class="content-text">
                     {% block jobHeadline %}
@@ -30,6 +31,7 @@
                     {% endblock %}
                 </div>
             </div>
+            {% endblock %}
         {% endfor %}
     {% endif %}
 {% endblock %}
