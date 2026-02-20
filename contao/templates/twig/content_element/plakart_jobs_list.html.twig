@@ -1,5 +1,6 @@
-<div class="{{ class }} block">
+{% extends "@Contao/content_element/_base.html.twig" %}
 
+{% block content %}
     {% if jobs is defined and jobs is iterable %}
         {% for job in jobs %}
             <div class="job_item {{ job.cssClass }}">
@@ -31,5 +32,4 @@
             </div>
         {% endfor %}
     {% endif %}
-
-</div>
+{% endblock %}

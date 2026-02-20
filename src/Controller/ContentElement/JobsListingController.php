@@ -28,7 +28,7 @@ use Contao\StringUtil;
 use Contao\System;
 use Contao\PageModel;
 
-#[AsContentElement(category: 'plakartJobs', template: 'plakart_jobs_list')]
+#[AsContentElement(category: 'plakartJobs', template: 'content_element/plakart_jobs_list')]
 class JobsListingController extends AbstractContentElementController
 {
     protected function getResponse(FragmentTemplate $template, ContentModel $model, Request $request): Response
