@@ -39,9 +39,9 @@ class JobsListingController extends AbstractContentElementController
         // check sortBy Field
         $sortBy = '';
         if('date_asc' === $model->jobsSortBy) {
-            $sortBy = 'date ASC';
+            $sortBy = 'date ASC, time ASC';
         } elseif ('date_desc' === $model->jobsSortBy) {
-            $sortBy = 'date DESC';
+            $sortBy = 'date DESC, time DESC';
         } elseif ('name_asc' === $model->jobsSortBy) {
             $sortBy = 'title ASC';
         } elseif ('name_desc' === $model->jobsSortBy) {

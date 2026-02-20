@@ -46,7 +46,7 @@ $GLOBALS['TL_DCA']['tl_plakart_jobs'] = array
         'sorting' => array
         (
             'mode'                    => DataContainer::MODE_SORTED,
-            'fields'                  => array('date DESC'),
+            'fields'                  => array('date DESC', 'time DESC'),
             'headerFields'            => array('title', 'tstamp'),
             'panelLayout'             => 'search,filter,sort,limit',
             'defaultSearchField'      => 'title'
