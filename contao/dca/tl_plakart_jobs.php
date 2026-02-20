@@ -156,7 +156,7 @@ $GLOBALS['TL_DCA']['tl_plakart_jobs'] = array
         (
             'exclude'                 => true,
             'inputType'               => 'select',
-            'options'                 => \Plakart\ContaoJobsBundle\Model\PlakartJobsCategoriesModel::findAllReturnAsOptionsArray(),
+            'options_callback'        => [\Plakart\ContaoJobsBundle\Model\PlakartJobsCategoriesModel::class, 'findAllReturnAsOptionsArray'],
             'eval'                    => ['multiple'=>true, 'chosen' => true, 'tl_class' => 'clr', 'includeBlankOption' => true],
             'sql'                     => ['type' => 'blob', 'notnull' => false]
         ),
