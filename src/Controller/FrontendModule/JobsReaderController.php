@@ -33,7 +33,7 @@ use Contao\ContentModel;
 use Plakart\ContaoJobsBundle\Model\PlakartJobsModel;
 use Contao\Config;
 
-#[AsFrontendModule(category: 'plakartJobs', template: 'plakart_jobs_reader')]
+#[AsFrontendModule(category: 'plakartJobs', template: 'frontend_module/plakart_jobs_reader')]
 class JobsReaderController extends AbstractFrontendModuleController
 {
     protected function getResponse(FragmentTemplate $template, ModuleModel $model, Request $request): Response
