@@ -3,6 +3,8 @@ services:
     autowire: true
     autoconfigure: true
 
+  Plakart\ContaoJobsBundle\Helper\GoogleApi: ~
+
   Plakart\ContaoJobsBundle\:
     resource: ../src
     exclude: ../src/{ContaoManager,Helper,DependencyInjection,Model,ContaoJobsBundle.php}

@@ -27,13 +27,13 @@ $GLOBALS['TL_DCA']['tl_plakart_jobs_settings'] = array
     'palettes' => array
     (
         '__selector__'                => array('gfjApi'),
-        'default'                     => '{global_legend},company,street,streetNr,zip,city,url,logo;{gfj_legend},gfjSchema,gfjApi;'
+        'default'                     => '{global_legend},company,street,streetNr,zip,city,url,logo;{gfj_legend},gfjSchema,gfjApi;{expert_legend},gfjApiAnalysis'
     ),
 
     // Sub-palettes
     'subpalettes' => array
     (
-        'gfjApi'                      => 'gfjJsonFileName',
+        'gfjApi'                      => 'gfjJsonFileName,gfjApiAnalysis',
     ),
 
     // Fields
@@ -87,6 +87,11 @@ $GLOBALS['TL_DCA']['tl_plakart_jobs_settings'] = array
         (
             'inputType'               => 'text',
             'eval'                    => ['mandatory'=>true,'tl_class'=>'w50'],
+        ),
+        'gfjApiAnalysis' => array
+        (
+            'inputType'               => 'checkbox',
+            'eval'                    => ['tl_class' => 'clr'],
         )
     )
 
