@@ -84,10 +84,10 @@ class GoogleApi
         }
     }
 
-    public function indexing(string $page, string $type = self::TYPE_URL_UPDATED): void
+    public function indexing(string $page, string $type = self::TYPE_URL_UPDATED): bool
     {
         if (!$this->isClientAvailable()) {
-            return;
+            return false;
         }
 
         $type = $this->normalizeNotificationType($type);
@@ -98,7 +98,7 @@ class GoogleApi
                 'input_url' => $page,
                 'type' => $type,
             ]);
-            return;
+            return false;
         }
 
         try {
@@ -120,6 +120,7 @@ class GoogleApi
                     'url' => $url,
                     'type' => $type,
                 ]);
+                return true;
             } else {
                 $this->log(LogLevel::ERROR, 'Google Indexing API request returned non-2xx status.', ContaoContext::ERROR, [
                     'status_code' => $statusCode,
@@ -127,12 +128,14 @@ class GoogleApi
                     'url' => $url,
                     'type' => $type,
                 ]);
+                return false;
             }
         } catch (Throwable $e) {
             $this->log(LogLevel::ERROR, 'Google Indexing API request failed: ' . $e->getMessage(), ContaoContext::ERROR, [
                 'url' => $url,
                 'type' => $type,
             ]);
+            return false;
         }
     }
 
