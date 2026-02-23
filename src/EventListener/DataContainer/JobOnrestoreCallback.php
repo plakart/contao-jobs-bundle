@@ -136,7 +136,13 @@ class JobOnrestoreCallback
 
         $this->logger->log(
             $ok ? LogLevel::INFO : LogLevel::ERROR,
-            sprintf('Google Ping [%s]: %s', $method, $ok ? 'OK' : 'NICHT OK'),
+            sprintf(
+                'Google Ping [%s]: %s | Type: %s | URL: %s',
+                $method,
+                $ok ? 'OK' : 'NICHT OK',
+                $type,
+                $url ?? '-'
+            ),
             $context
         );
     }
