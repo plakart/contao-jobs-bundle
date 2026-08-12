@@ -85,7 +85,7 @@ $GLOBALS['TL_DCA']['tl_plakart_jobs'] = array
         'default'                     => '
             {title_legend},title,featured,alias;
             {date_legend},date,time;
-            {job_legend},categories,street,streetNr,zip,city,employmentSalary,employmentSalaryPer,employmentValidThrough,employmentType;
+            {job_legend},categories,street,streetNr,zip,city,employmentSalary,employmentSalaryMin,employmentSalaryMax,employmentSalaryPer,employmentValidThrough,employmentType;
             {meta_legend},pageTitle,robots,description;
             {teaser_legend},subheadline,teaser;
             {image_legend},addImage;
@@ -213,7 +213,21 @@ $GLOBALS['TL_DCA']['tl_plakart_jobs'] = array
         (
             'exclude'                 => true,
             'inputType'               => 'text',
-            'eval'                    => ['basicEntities'=>true, 'maxlength'=>12, 'tl_class'=>'gfj w50'],
+            'eval'                    => ['basicEntities'=>true, 'maxlength'=>12, 'tl_class'=>'gfj w25 clr'],
+            'sql'                     => ['type' => 'string', 'length' => 12, 'notnull' => true, 'default' => '']
+        ),
+        'employmentSalaryMin' => array
+        (
+            'exclude'                 => true,
+            'inputType'               => 'text',
+            'eval'                    => ['basicEntities'=>true, 'maxlength'=>12, 'tl_class'=>'gfj w25'],
+            'sql'                     => ['type' => 'string', 'length' => 12, 'notnull' => true, 'default' => '']
+        ),
+        'employmentSalaryMax' => array
+        (
+            'exclude'                 => true,
+            'inputType'               => 'text',
+            'eval'                    => ['basicEntities'=>true, 'maxlength'=>12, 'tl_class'=>'gfj w25'],
             'sql'                     => ['type' => 'string', 'length' => 12, 'notnull' => true, 'default' => '']
         ),
         'employmentSalaryPer' => array
@@ -223,7 +237,7 @@ $GLOBALS['TL_DCA']['tl_plakart_jobs'] = array
             'inputType'               => 'select',
             'options'                 => ['HOUR', 'DAY', 'WEEK', 'MONTH', 'YEAR'],
             'reference'               => &$GLOBALS['TL_LANG']['tl_plakart_jobs']['employmentSalaryPer_options'],
-            'eval'                    => ['tl_class'=>'gfj w50', 'includeBlankOption' => true],
+            'eval'                    => ['tl_class'=>'gfj w25', 'includeBlankOption' => true],
             'sql'                     => ['type' => 'string', 'length' => 255, 'notnull' => true, 'default' => 'MONTH']
         ),
         'pageTitle' => array

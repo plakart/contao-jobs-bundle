@@ -104,7 +104,7 @@ class JobsReaderController extends AbstractFrontendModuleController
                 '@context' => 'https://schema.org',
                 '@type' => 'JobPosting',
                 'title' => $job->title,
-                'description' => PrepareJobData::gfjDescription($strContent ?? ''),
+                'description' => PrepareJobData::gfjDescription(($job->teaser ?: '') . ' ' . ($strContent ?? '')),
                 'datePosted' => date('Y-m-d', $job->date),
                 'employmentType' => implode(',',$job->employmentType),
                 'hiringOrganization' => [
@@ -126,7 +126,9 @@ class JobsReaderController extends AbstractFrontendModuleController
 
             // optional gfj parameters
             if($job->employmentValidThrough) $gfj['validThrough'] = date('d-m-Y', (int) $job->employmentValidThrough);
-            if($job->employmentSalary) $gfj['baseSalary'] = $job->employmentSalary . ' ' . $job->employmentSalaryPer;
+            if($baseSalary = PrepareJobData::gfjBaseSalary($job->employmentSalary, $job->employmentSalaryMin, $job->employmentSalaryMax, $job->employmentSalaryPer)) {
+                $gfj['baseSalary'] = $baseSalary;
+            }
 
             $template->addGfjSchema = Config::get('gfjSchema') ||  Config::get('gfjApi') ?? false;
             $template->gfj = json_encode($gfj, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);

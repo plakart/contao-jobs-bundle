@@ -68,7 +68,11 @@ class PrepareJobData
 
     public static function gfjCompanyStreetAddress(string|null $street = null, string|null $streetNr = null):string
     {
-        return $street ?: Config::get('street') . ' ' . $streetNr ?: Config::get('streetNr');
+        if($street) {
+            return trim($street . ' ' . ($streetNr ?? ''));
+        }
+
+        return trim((string) Config::get('street') . ' ' . (string) Config::get('streetNr'));
     }
 
     public static function gfjCompanyZip(string|null $zip = null):string
@@ -94,6 +98,42 @@ class PrepareJobData
     public static function gfjCompanyUrl():string
     {
         return Config::get('url') ?? '';
+    }
+
+    /**
+     * Builds the schema.org baseSalary structure (MonetaryAmount with a
+     * QuantitativeValue). A min/max range takes precedence over a fixed value.
+     *
+     * @see https://developers.google.com/search/docs/appearance/structured-data/job-posting
+     * @see https://schema.org/MonetaryAmount
+     */
+    public static function gfjBaseSalary(string|null $salary, string|null $min, string|null $max, string|null $unit):array|null
+    {
+        $value = ['@type' => 'QuantitativeValue'];
+
+        if($min || $max) {
+            if($min) $value['minValue'] = self::salaryNumber($min);
+            if($max) $value['maxValue'] = self::salaryNumber($max);
+        } elseif($salary) {
+            $value['value'] = self::salaryNumber($salary);
+        } else {
+            return null;
+        }
+
+        if($unit) $value['unitText'] = $unit;
+
+        return [
+            '@type' => 'MonetaryAmount',
+            'currency' => 'EUR',
+            'value' => $value
+        ];
+    }
+
+    private static function salaryNumber(string $value):float|string
+    {
+        $normalized = str_replace(',', '.', trim($value));
+
+        return is_numeric($normalized) ? (float) $normalized : $value;
     }
 
     public static function gfjDescription(string $text):string
