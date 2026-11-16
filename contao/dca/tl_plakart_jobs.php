@@ -23,7 +23,7 @@ $GLOBALS['TL_DCA']['tl_plakart_jobs'] = array
     // Config
     'config' => array
     (
-        'dataContainer' => DC_TABLE::class,
+        'dataContainer' => DC_Table::class,
         'switchToEdit' => true,
         'enableVersioning' => true,
         'markAsCopy' => 'title',
@@ -85,9 +85,10 @@ $GLOBALS['TL_DCA']['tl_plakart_jobs'] = array
         'default'                     => '
             {title_legend},title,featured,alias;
             {date_legend},date,time;
-            {job_legend},categories,street,streetNr,zip,city,employmentSalary,employmentSalaryMin,employmentSalaryMax,employmentSalaryPer,employmentValidThrough,employmentType;
+            {job_legend},categories,locations,street,streetNr,zip,city,employmentSalary,employmentSalaryMin,employmentSalaryMax,employmentSalaryPer,employmentValidThrough,employmentType;
             {meta_legend},pageTitle,robots,description;
             {teaser_legend},subheadline,teaser;
+            {contact_legend},contacts;
             {image_legend},addImage;
             {expert_legend:hide},cssClass;
             {publish_legend},published,start,stop'
@@ -156,8 +157,21 @@ $GLOBALS['TL_DCA']['tl_plakart_jobs'] = array
         (
             'exclude'                 => true,
             'inputType'               => 'select',
-            'options_callback'        => [\Plakart\ContaoJobsBundle\Model\PlakartJobsCategoriesModel::class, 'findAllReturnAsOptionsArray'],
             'eval'                    => ['multiple'=>true, 'chosen' => true, 'tl_class' => 'clr', 'includeBlankOption' => true],
+            'sql'                     => ['type' => 'blob', 'notnull' => false]
+        ),
+        'locations' => array
+        (
+            'exclude'                 => true,
+            'inputType'               => 'select',
+            'eval'                    => ['multiple'=>true, 'chosen' => true, 'tl_class' => 'gfj clr'],
+            'sql'                     => ['type' => 'blob', 'notnull' => false]
+        ),
+        'contacts' => array
+        (
+            'exclude'                 => true,
+            'inputType'               => 'select',
+            'eval'                    => ['multiple'=>true, 'chosen' => true, 'tl_class' => 'clr'],
             'sql'                     => ['type' => 'blob', 'notnull' => false]
         ),
         'street' => array

@@ -17,3 +17,4 @@ $GLOBALS['TL_LANG']['tl_module']['plakartjobs_legend'] = 'Job settings';
 
 // Fields
 $GLOBALS['TL_LANG']['tl_module']['jobsApplicationForm'] = ['Application form', 'Please choose the form that will be displayed as the application form on the detail page.'];
+$GLOBALS['TL_LANG']['tl_module']['jobsContactImgSize'] = ['Contact person image size', 'Here you can set the dimensions of the contact person images.'];

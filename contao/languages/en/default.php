@@ -17,7 +17,11 @@ $GLOBALS['TL_LANG']['MSC']['plakart_jobs'] =
 [
     'notices' => [
         'GoogleForJobsLabels' => 'Fields marked with a Google icon are particularly relevant for <strong>Google for Jobs</strong>.'
-    ]
+    ],
+    'pleaseSelect' => 'Please select',
+    'invalidJob' => 'The selected job offer is no longer available.',
+    'locations' => 'Locations',
+    'contacts' => 'Your contact persons',
 ];
 
 // WIDGET

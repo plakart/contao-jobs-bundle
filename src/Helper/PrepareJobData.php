@@ -14,132 +14,362 @@ declare(strict_types=1);
 
 namespace Plakart\ContaoJobsBundle\Helper;
 
+use Contao\Config;
+use Contao\CoreBundle\Image\Studio\Figure;
+use Contao\FilesModel;
 use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
 use Plakart\ContaoJobsBundle\Model\PlakartJobsCategoriesModel;
-use Contao\Config;
-use Contao\FilesModel;
-use Contao\Environment;
+use Plakart\ContaoJobsBundle\Model\PlakartJobsContactsModel;
+use Plakart\ContaoJobsBundle\Model\PlakartJobsLocationsModel;
+use Plakart\ContaoJobsBundle\Model\PlakartJobsModel;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class PrepareJobData
 {
+    private const DEFAULT_COUNTRY = 'DE';
+
+    /**
+     * Returns the job data as an array for the templates: the database row plus
+     * the resolved image, categories, employment types, locations and contacts.
+     *
+     * @return array<string, mixed>
+     */
+    public static function forTemplate(PlakartJobsModel $job, array|string|null $imageSize = null, array|string|null $contactImageSize = null): array
+    {
+        $data = $job->row();
+
+        $data['figure'] = $job->addImage && $job->singleSRC ? self::image($job->singleSRC, $imageSize, (bool) $job->fullsize) : null;
+        $data['categories'] = self::categories($job->categories);
+        $data['employmentType'] = self::employmentType($job->employmentType);
+        $data['locations'] = self::locations($job->locations);
+        $data['contacts'] = self::contacts($job->contacts, $contactImageSize);
+
+        return $data;
+    }
+
+    /**
+     * Generates the URL of a job on the given reader page.
+     */
+    public static function url(PageModel $page, string $alias, bool $absolute = false): string
+    {
+        return System::getContainer()->get('contao.routing.content_url_generator')->generate(
+            $page,
+            ['parameters' => '/'.ltrim($alias, '/')],
+            $absolute ? UrlGeneratorInterface::ABSOLUTE_URL : UrlGeneratorInterface::ABSOLUTE_PATH,
+        );
+    }
+
+    /**
+     * @deprecated use PrepareJobData::url() instead
+     */
     public static function alias(PageModel $page, string $alias): string
     {
-        return System::getContainer()->get('contao.routing.content_url_generator')->generate($page, ['parameters' => '/'.$alias]);
+        return self::url($page, $alias);
     }
 
-    public static function image(string $singleSRC, string|null $size = null, bool $fullsize = false):object
+    public static function image(string|null $singleSRC, array|string|null $size = null, bool $fullsize = false): Figure|null
     {
-        $figureBuilder = System::getContainer()
+        if (!$singleSRC) {
+            return null;
+        }
+
+        return System::getContainer()
             ->get('contao.image.studio')
-            ->createFigureBuilder();
-
-        $figureBuilder
+            ->createFigureBuilder()
             ->fromUuid($singleSRC)
-            ->setSize($size)
+            ->setSize($size ?: null)
             ->enableLightbox($fullsize)
+            ->buildIfResourceExists()
         ;
-
-        return $figureBuilder->buildIfResourceExists();
     }
 
-    public static function categories(string $serialized):array
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public static function categories(string|null $serialized): array
     {
-        $categories = StringUtil::deserialize($serialized, true);
-        $array = [];
+        $categories = [];
 
-        foreach($categories as $category) {
-            $array[] = PlakartJobsCategoriesModel::findByIdOrAlias($category)->row();
+        foreach (StringUtil::deserialize($serialized, true) as $alias) {
+            if ($category = PlakartJobsCategoriesModel::findByIdOrAlias($alias)) {
+                $categories[] = $category->row();
+            }
         }
 
-        return $array;
+        return $categories;
     }
 
-    public static function employmentType(string $serialized):array
+    /**
+     * @return list<string>
+     */
+    public static function employmentType(string|null $serialized): array
     {
-        return StringUtil::deserialize($serialized, true);
+        return array_values(array_filter(StringUtil::deserialize($serialized, true)));
     }
 
-    public static function gfjCompanyName():string
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public static function locations(string|null $serialized): array
     {
-        return Config::get('company') ?? '';
-    }
+        $locations = [];
 
-    public static function gfjCompanyStreetAddress(string|null $street = null, string|null $streetNr = null):string
-    {
-        if($street) {
-            return trim($street . ' ' . ($streetNr ?? ''));
+        foreach (self::findInOrder(PlakartJobsLocationsModel::class, $serialized) as $location) {
+            $locations[] = $location->row();
         }
 
-        return trim((string) Config::get('street') . ' ' . (string) Config::get('streetNr'));
+        return $locations;
     }
 
-    public static function gfjCompanyZip(string|null $zip = null):string
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public static function contacts(string|null $serialized, array|string|null $imageSize = null): array
     {
-        return $zip ?: (string) Config::get('zip');
+        $contacts = [];
+
+        foreach (self::findInOrder(PlakartJobsContactsModel::class, $serialized) as $contact) {
+            $row = $contact->row();
+            $row['figure'] = $contact->addImage ? self::image($contact->singleSRC, $imageSize) : null;
+
+            $contacts[] = $row;
+        }
+
+        return $contacts;
     }
 
-    public static function gfjCompanyCity(string|null $city = null):string
+    public static function gfjCompanyName(): string
     {
-        return $city ?: Config::get('city');
+        return (string) Config::get('company');
     }
 
-    public static function gfjCompanyLogo():string
+    public static function gfjCompanyStreetAddress(string|null $street = null, string|null $streetNr = null): string
+    {
+        if ($street) {
+            return trim($street.' '.($streetNr ?? ''));
+        }
+
+        return trim(Config::get('street').' '.Config::get('streetNr'));
+    }
+
+    public static function gfjCompanyZip(string|null $zip = null): string
+    {
+        return (string) ($zip ?: Config::get('zip'));
+    }
+
+    public static function gfjCompanyCity(string|null $city = null): string
+    {
+        return (string) ($city ?: Config::get('city'));
+    }
+
+    public static function gfjCompanyCountry(string|null $country = null): string
+    {
+        return strtoupper((string) ($country ?: Config::get('gfjCountry') ?: self::DEFAULT_COUNTRY));
+    }
+
+    public static function gfjCompanyLogo(): string
     {
         $src = Config::get('logo');
-        if($src && $logo = FilesModel::findByUuid($src)) {
-            return Environment::get('url').$logo->path;
+
+        if (!$src || !$logo = FilesModel::findByUuid($src)) {
+            return '';
         }
 
-        return '';
+        $request = System::getContainer()->get('request_stack')->getCurrentRequest();
+        $path = implode('/', array_map('rawurlencode', explode('/', $logo->path)));
+
+        return ($request?->getSchemeAndHttpHost() ?? '').'/'.$path;
     }
 
-    public static function gfjCompanyUrl():string
+    public static function gfjCompanyUrl(): string
     {
-        return Config::get('url') ?? '';
+        return (string) Config::get('url');
+    }
+
+    /**
+     * Builds the schema.org jobLocation. Assigned locations take precedence over
+     * the address fields of the job, which in turn fall back to the company address.
+     *
+     * @param array<string, mixed> $job The job data as returned by forTemplate()
+     *
+     * @return array<string, mixed>|list<array<string, mixed>>
+     */
+    public static function gfjJobLocation(array $job): array
+    {
+        $places = [];
+
+        foreach ($job['locations'] ?? [] as $location) {
+            $place = ['@type' => 'Place'];
+
+            if ($location['title'] ?? '') {
+                $place['name'] = $location['title'];
+            }
+
+            $place['address'] = self::gfjPostalAddress(
+                trim(($location['street'] ?? '').' '.($location['streetNr'] ?? '')),
+                (string) ($location['city'] ?? ''),
+                (string) ($location['zip'] ?? ''),
+                self::gfjCompanyCountry($location['country'] ?? null),
+            );
+
+            $places[] = $place;
+        }
+
+        if ([] === $places) {
+            return [
+                '@type' => 'Place',
+                'address' => self::gfjPostalAddress(
+                    self::gfjCompanyStreetAddress($job['street'] ?? null, $job['streetNr'] ?? null),
+                    self::gfjCompanyCity($job['city'] ?? null),
+                    self::gfjCompanyZip($job['zip'] ?? null),
+                    self::gfjCompanyCountry(),
+                ),
+            ];
+        }
+
+        return 1 === \count($places) ? $places[0] : $places;
+    }
+
+    /**
+     * Builds the complete schema.org JobPosting structure.
+     *
+     * @param array<string, mixed> $job  The job data as returned by forTemplate()
+     * @param string               $html The rendered job description (teaser and content elements)
+     *
+     * @return array<string, mixed>
+     *
+     * @see https://developers.google.com/search/docs/appearance/structured-data/job-posting
+     */
+    public static function gfjJobPosting(array $job, string $html): array
+    {
+        $gfj = [
+            '@context' => 'https://schema.org',
+            '@type' => 'JobPosting',
+            'title' => StringUtil::decodeEntities((string) $job['title']),
+            'description' => self::gfjDescription($html),
+            'datePosted' => date('Y-m-d', (int) $job['date']),
+        ];
+
+        if ($job['employmentType'] ?? []) {
+            $gfj['employmentType'] = 1 === \count($job['employmentType']) ? $job['employmentType'][0] : $job['employmentType'];
+        }
+
+        $gfj['hiringOrganization'] = array_filter([
+            '@type' => 'Organization',
+            'name' => self::gfjCompanyName(),
+            'sameAs' => self::gfjCompanyUrl(),
+            'logo' => self::gfjCompanyLogo(),
+        ]);
+
+        $gfj['jobLocation'] = self::gfjJobLocation($job);
+
+        if ($job['employmentValidThrough'] ?? '') {
+            // Valid until the end of the selected day
+            $gfj['validThrough'] = date('Y-m-d\T23:59:59P', (int) $job['employmentValidThrough']);
+        }
+
+        $baseSalary = self::gfjBaseSalary(
+            $job['employmentSalary'] ?? null,
+            $job['employmentSalaryMin'] ?? null,
+            $job['employmentSalaryMax'] ?? null,
+            $job['employmentSalaryPer'] ?? null,
+        );
+
+        if ($baseSalary) {
+            $gfj['baseSalary'] = $baseSalary;
+        }
+
+        return $gfj;
     }
 
     /**
      * Builds the schema.org baseSalary structure (MonetaryAmount with a
      * QuantitativeValue). A min/max range takes precedence over a fixed value.
      *
-     * @see https://developers.google.com/search/docs/appearance/structured-data/job-posting
      * @see https://schema.org/MonetaryAmount
      */
-    public static function gfjBaseSalary(string|null $salary, string|null $min, string|null $max, string|null $unit):array|null
+    public static function gfjBaseSalary(string|null $salary, string|null $min, string|null $max, string|null $unit): array|null
     {
         $value = ['@type' => 'QuantitativeValue'];
 
-        if($min || $max) {
-            if($min) $value['minValue'] = self::salaryNumber($min);
-            if($max) $value['maxValue'] = self::salaryNumber($max);
-        } elseif($salary) {
+        if ($min || $max) {
+            if ($min) {
+                $value['minValue'] = self::salaryNumber($min);
+            }
+
+            if ($max) {
+                $value['maxValue'] = self::salaryNumber($max);
+            }
+        } elseif ($salary) {
             $value['value'] = self::salaryNumber($salary);
         } else {
             return null;
         }
 
-        if($unit) $value['unitText'] = $unit;
+        if ($unit) {
+            $value['unitText'] = $unit;
+        }
 
         return [
             '@type' => 'MonetaryAmount',
             'currency' => 'EUR',
-            'value' => $value
+            'value' => $value,
         ];
     }
 
-    private static function salaryNumber(string $value):float|string
+    public static function gfjDescription(string $text): string
+    {
+        $cleanText = strip_tags($text, '<ul><li><ol><br><b><i><strong><em><p><a><h2><h3>');
+
+        return trim((string) preg_replace('/\s+/', ' ', StringUtil::restoreBasicEntities($cleanText)));
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function gfjPostalAddress(string $street, string $city, string $zip, string $country): array
+    {
+        return array_filter([
+            '@type' => 'PostalAddress',
+            'streetAddress' => $street,
+            'addressLocality' => $city,
+            'postalCode' => $zip,
+            'addressCountry' => $country,
+        ]);
+    }
+
+    /**
+     * Loads the models of the serialized ID list and keeps the selected order.
+     *
+     * @template T of \Contao\Model
+     *
+     * @param class-string<T> $modelClass
+     *
+     * @return list<T>
+     */
+    private static function findInOrder(string $modelClass, string|null $serialized): array
+    {
+        $ids = array_values(array_filter(array_map('intval', StringUtil::deserialize($serialized, true))));
+
+        if ([] === $ids) {
+            return [];
+        }
+
+        $byId = [];
+
+        foreach ($modelClass::findMultipleByIds($ids) ?? [] as $model) {
+            $byId[(int) $model->id] = $model;
+        }
+
+        return array_values(array_filter(array_map(static fn (int $id) => $byId[$id] ?? null, $ids)));
+    }
+
+    private static function salaryNumber(string $value): float|string
     {
         $normalized = str_replace(',', '.', trim($value));
 
         return is_numeric($normalized) ? (float) $normalized : $value;
     }
-
-    public static function gfjDescription(string $text):string
-    {
-        $cleanText = strip_tags($text, '<ul><li><ol><br><b><i><strong><em><p><a><h2><h3>');
-        return trim(preg_replace('/\s+/', ' ', StringUtil::restoreBasicEntities($cleanText)));
-    }
-
 }

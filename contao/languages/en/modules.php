@@ -24,3 +24,5 @@ $GLOBALS['TL_LANG']['CTE']['jobs_listing'] = ['Job list', 'Adds a list of job of
 // Front end modules
 $GLOBALS['TL_LANG']['FMD']['plakartJobs'] = 'Jobs';
 $GLOBALS['TL_LANG']['FMD']['jobs_reader'] = ['Job reader', 'Displays a single job offer.'];
+$GLOBALS['TL_LANG']['MOD']['jobsLocations'] = ['Job locations', 'Manage locations that can be assigned to job offers'];
+$GLOBALS['TL_LANG']['MOD']['jobsContacts'] = ['Job contact persons', 'Manage contact persons that can be assigned to job offers'];

@@ -27,7 +27,7 @@ $GLOBALS['TL_DCA']['tl_plakart_jobs_settings'] = array
     'palettes' => array
     (
         '__selector__'                => array('gfjApi'),
-        'default'                     => '{global_legend},company,street,streetNr,zip,city,url,logo;{gfj_legend},gfjSchema,gfjApi;{expert_legend},gfjApiAnalysis'
+        'default'                     => '{global_legend},company,street,streetNr,zip,city,gfjCountry,url,logo;{gfj_legend},gfjSchema,gfjApi;{expert_legend},gfjApiAnalysis'
     ),
 
     // Sub-palettes
@@ -63,6 +63,13 @@ $GLOBALS['TL_DCA']['tl_plakart_jobs_settings'] = array
         (
             'inputType'               => 'text',
             'eval'                    => ['tl_class' => 'w25', 'mandatory' => true]
+        ),
+        'gfjCountry' => array
+        (
+            'default'                 => 'DE',
+            'inputType'               => 'select',
+            'options_callback'        => static fn (): array => \Contao\System::getContainer()->get('contao.intl.countries')->getCountries(),
+            'eval'                    => ['tl_class' => 'clr w50', 'chosen' => true, 'includeBlankOption' => true]
         ),
         'url' => array
         (

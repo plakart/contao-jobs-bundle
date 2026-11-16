@@ -32,3 +32,4 @@ $GLOBALS['TL_LANG']['tl_plakart_jobs_settings']['gfjApiAnalysis'] = [
     'Analysis mode (detailed logging)',
     'Enables verbose Google Indexing logs for analysis. Disable in production.',
 ];
+$GLOBALS['TL_LANG']['tl_plakart_jobs_settings']['gfjCountry'] = ['Country', 'The country of the company. Required for Google for Jobs (default: Germany).'];

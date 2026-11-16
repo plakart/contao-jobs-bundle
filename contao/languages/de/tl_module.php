@@ -17,3 +17,4 @@ $GLOBALS['TL_LANG']['tl_module']['plakartjobs_legend'] = 'Job-Einstellungen';
 
 // Fields
 $GLOBALS['TL_LANG']['tl_module']['jobsApplicationForm'] = ['Bewerbungsformular', 'Bitte wählen Sie das Formular, das auf der Detailseite als Bewerbungsformular angezeigt wird.'];
+$GLOBALS['TL_LANG']['tl_module']['jobsContactImgSize'] = ['Bildgröße der Ansprechpartner', 'Hier können Sie die Abmessungen der Ansprechpartner-Bilder festlegen.'];

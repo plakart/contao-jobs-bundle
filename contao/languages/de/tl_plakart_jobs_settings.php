@@ -32,3 +32,4 @@ $GLOBALS['TL_LANG']['tl_plakart_jobs_settings']['gfjApiAnalysis'] = [
     'Analyse-Modus (detailliertes Logging)',
     'Aktiviert ausführliche Google-Indexing-Logs zur Analyse. Im Live-Betrieb deaktivieren.',
 ];
+$GLOBALS['TL_LANG']['tl_plakart_jobs_settings']['gfjCountry'] = ['Land', 'Das Land des Unternehmens. Wird für Google for Jobs benötigt (Standard: Deutschland).'];

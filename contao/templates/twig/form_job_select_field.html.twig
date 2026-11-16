@@ -1,0 +1,40 @@
+{#
+    Job select form field. Renders a hidden field with the current job on a job
+    detail page and a select menu with all published jobs everywhere else.
+
+    The template does not extend "form_row" on purpose, so that it works the
+    same way in Contao 5.3, 5.7 and 6.
+#}
+{% trans_default_domain 'contao_default' %}
+{% set job = this.getCurrentJob() %}
+
+{% if job %}
+    <input type="hidden" name="{{ this.name }}" value="{{ job.id }}">
+{% else %}
+    <div class="{{ strPrefix }}{% if this.class %} {{ this.class }}{% endif %}">
+        {% block label %}
+            {% if this.label %}
+                <label for="ctrl_{{ this.id }}"{% if this.class %} class="{{ this.class }}"{% endif %}>
+                    {% if this.mandatory %}
+                        <span class="invisible">{{ this.mandatoryField }} </span>{{ this.label|raw }}<span class="mandatory">*</span>
+                    {% else %}
+                        {{ this.label|raw }}
+                    {% endif %}
+                </label>
+            {% endif %}
+        {% endblock %}
+
+        {% block field %}
+            {% if hasErrors.invoke() %}
+                <p class="error">{{ getErrorAsString.invoke() }}</p>
+            {% endif %}
+
+            <select name="{{ this.name }}" id="ctrl_{{ this.id }}" class="select{% if this.class %} {{ this.class }}{% endif %}"{{ getAttributes.invoke()|raw }}{% if this.mandatory %} required{% endif %}>
+                <option value="">{{ 'MSC.plakart_jobs.pleaseSelect'|trans }}</option>
+                {% for id, title in this.getJobOptions() %}
+                    <option value="{{ id }}"{% if this.value == id %} selected{% endif %}>{{ title }}</option>
+                {% endfor %}
+            </select>
+        {% endblock %}
+    </div>
+{% endif %}

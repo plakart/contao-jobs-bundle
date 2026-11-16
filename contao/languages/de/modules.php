@@ -24,3 +24,5 @@ $GLOBALS['TL_LANG']['CTE']['jobs_listing'] = ['Job-Liste', 'Fügt der Seite eine
 // Front end modules
 $GLOBALS['TL_LANG']['FMD']['plakartJobs'] = 'Jobs';
 $GLOBALS['TL_LANG']['FMD']['jobs_reader'] = ['Job-Leser', 'Zeigt ein einzelnes Stellenangebot an.'];
+$GLOBALS['TL_LANG']['MOD']['jobsLocations'] = ['Job-Standorte', 'Standorte verwalten, die Stellenangeboten zugewiesen werden können'];
+$GLOBALS['TL_LANG']['MOD']['jobsContacts'] = ['Job-Ansprechpartner', 'Ansprechpartner verwalten, die Stellenangeboten zugewiesen werden können'];

@@ -14,129 +14,116 @@ declare(strict_types=1);
 
 namespace Plakart\ContaoJobsBundle\Controller\FrontendModule;
 
+use Contao\Config;
+use Contao\ContentModel;
 use Contao\Controller;
 use Contao\CoreBundle\Controller\FrontendModule\AbstractFrontendModuleController;
 use Contao\CoreBundle\DependencyInjection\Attribute\AsFrontendModule;
 use Contao\CoreBundle\Exception\PageNotFoundException;
+use Contao\CoreBundle\Routing\ContentUrlGenerator;
+use Contao\CoreBundle\Routing\ResponseContext\HtmlHeadBag\HtmlHeadBag;
+use Contao\CoreBundle\Routing\ResponseContext\ResponseContextAccessor;
+use Contao\CoreBundle\Security\Authentication\Token\TokenChecker;
+use Contao\CoreBundle\String\HtmlDecoder;
 use Contao\CoreBundle\Twig\FragmentTemplate;
-use Contao\Environment;
+use Contao\Input;
 use Contao\ModuleModel;
 use Contao\PageModel;
-use Contao\System;
 use Plakart\ContaoJobsBundle\Helper\PrepareJobData;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Contao\CoreBundle\Routing\ResponseContext\HtmlHeadBag\HtmlHeadBag;
-
-use Contao\Input;
-use Contao\ContentModel;
 use Plakart\ContaoJobsBundle\Model\PlakartJobsModel;
-use Contao\Config;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 
 #[AsFrontendModule(category: 'plakartJobs', template: 'frontend_module/plakart_jobs_reader')]
 class JobsReaderController extends AbstractFrontendModuleController
 {
+    public function __construct(
+        private readonly TokenChecker $tokenChecker,
+        private readonly ContentUrlGenerator $contentUrlGenerator,
+        private readonly ResponseContextAccessor $responseContextAccessor,
+        private readonly HtmlDecoder $htmlDecoder,
+        private readonly RequestStack $requestStack,
+    ) {
+    }
+
     protected function getResponse(FragmentTemplate $template, ModuleModel $model, Request $request): Response
     {
         $alias = Input::get('auto_item');
-        if($alias && $job = PlakartJobsModel::findByIdOrAlias($alias)) {
+        $job = $alias ? PlakartJobsModel::findPublishedByIdOrAlias($alias) : null;
 
-            // image
-            if($job->singleSRC) {
-                $job->figure = PrepareJobData::image($job->singleSRC, $model->imgSize, $job->fullsize);
+        if (null === $job) {
+            // Do not send a 404 in the front end preview, e.g. if the reader page
+            // itself is previewed from the back end without a job in the URL.
+            if ($this->isPreview()) {
+                return new Response();
             }
 
-            // categories
-            if($job->categories) {
-                $job->categories = PrepareJobData::categories($job->categories);
-            }
-
-            // employmentType
-            if($job->employmentType) {
-                $job->employmentType = PrepareJobData::employmentType($job->employmentType);
-            }
-
-            // go back link
-            $template->goBack = 'javascript:history.back()';
-            if($model->overviewPage) {
-                $template->goBack = System::getContainer()->get('contao.routing.content_url_generator')->generate(PageModel::findById($model->overviewPage));
-            }
-
-            // form
-            $template->form = false;
-            if($model->jobsApplicationForm) {
-                $template->form = Controller::getForm($model->jobsApplicationForm);
-            }
-
-            // meta/seo
-            $title = (string) ($job->pageTitle ?: $job->title ?: '');
-            $description = (string) ($job->description ?: $job->teaser ?: '');
-            $responseContext = System::getContainer()->get('contao.routing.response_context_accessor')->getResponseContext();
-            if ($responseContext?->has(HtmlHeadBag::class))
-            {
-                $htmlHeadBag = $responseContext->get(HtmlHeadBag::class);
-                $htmlDecoder = System::getContainer()->get('contao.string.html_decoder');
-
-                $htmlHeadBag->setTitle($htmlDecoder->inputEncodedToPlainText($title));
-                $htmlHeadBag->setMetaDescription($htmlDecoder->inputEncodedToPlainText($description));
-
-                if ('' !== trim((string) $job->robots)) {
-                    $htmlHeadBag->setMetaRobots((string) $job->robots);
-                }
-            }
-
-            // all other values
-            foreach($job->row() as $k => $v) {
-                $template->{$k} = $v;
-            }
-
-            // get the elements
-            if($content = ContentModel::findPublishedByPidAndTable($job->id, 'tl_plakart_jobs')) {
-                $strContent = '';
-                while($content->next()) {
-                    $strContent .= Controller::getContentElement($content->id);
-                }
-                $template->text = $strContent;
-            }
-
-            // google for jobs schema
-            $gfj = [
-                '@context' => 'https://schema.org',
-                '@type' => 'JobPosting',
-                'title' => $job->title,
-                'description' => PrepareJobData::gfjDescription(($job->teaser ?: '') . ' ' . ($strContent ?? '')),
-                'datePosted' => date('Y-m-d', $job->date),
-                'employmentType' => implode(',',$job->employmentType),
-                'hiringOrganization' => [
-                    '@type' => 'Organization',
-                    'name' => PrepareJobData::gfjCompanyName(),
-                    'sameAs' => PrepareJobData::gfjCompanyUrl(),
-                    'logo' => PrepareJobData::gfjCompanyLogo()
-                ],
-                'jobLocation' => [
-                    '@type' => 'Place',
-                    'address' => [
-                        '@type' => 'PostalAddress',
-                        'streetAddress' => PrepareJobData::gfjCompanyStreetAddress($job->street,$job->streetNr),
-                        'addressLocality' => PrepareJobData::gfjCompanyCity($job->city),
-                        'postalCode' => PrepareJobData::gfjCompanyZip($job->zip),
-                    ]
-                ]
-            ];
-
-            // optional gfj parameters
-            if($job->employmentValidThrough) $gfj['validThrough'] = date('d-m-Y', (int) $job->employmentValidThrough);
-            if($baseSalary = PrepareJobData::gfjBaseSalary($job->employmentSalary, $job->employmentSalaryMin, $job->employmentSalaryMax, $job->employmentSalaryPer)) {
-                $gfj['baseSalary'] = $baseSalary;
-            }
-
-            $template->addGfjSchema = Config::get('gfjSchema') ||  Config::get('gfjApi') ?? false;
-            $template->gfj = json_encode($gfj, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
-
-        } else {
-            throw new PageNotFoundException('Page not found: ' . Environment::get('uri'));
+            throw new PageNotFoundException('Page not found: '.$request->getUri());
         }
 
+        $data = PrepareJobData::forTemplate($job, $model->imgSize, $model->jobsContactImgSize);
+
+        foreach ($data as $key => $value) {
+            $template->set($key, $value);
+        }
+
+        // Go back link
+        $overviewPage = $model->overviewPage ? PageModel::findById($model->overviewPage) : null;
+        $template->goBack = $overviewPage ? $this->contentUrlGenerator->generate($overviewPage) : 'javascript:history.back()';
+
+        // Application form
+        $template->form = $model->jobsApplicationForm ? Controller::getForm($model->jobsApplicationForm) : false;
+
+        // Content elements
+        $text = '';
+
+        foreach (ContentModel::findPublishedByPidAndTable($job->id, 'tl_plakart_jobs') ?? [] as $element) {
+            $text .= Controller::getContentElement($element);
+        }
+
+        $template->text = $text;
+
+        $this->setMetaData($job);
+
+        // Google for Jobs schema
+        $template->addGfjSchema = Config::get('gfjSchema') || Config::get('gfjApi');
+        $template->gfj = '';
+
+        if ($template->addGfjSchema) {
+            $template->gfj = json_encode(
+                PrepareJobData::gfjJobPosting($data, $job->teaser.' '.$text),
+                JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_THROW_ON_ERROR,
+            );
+        }
+
+        $this->tagResponse('contao.db.tl_plakart_jobs.'.$job->id);
+
         return $template->getResponse();
+    }
+
+    private function isPreview(): bool
+    {
+        return $this->tokenChecker->isPreviewMode() || true === $this->requestStack->getMainRequest()?->attributes->get('_preview');
+    }
+
+    private function setMetaData(PlakartJobsModel $job): void
+    {
+        $responseContext = $this->responseContextAccessor->getResponseContext();
+
+        if (!$responseContext?->has(HtmlHeadBag::class)) {
+            return;
+        }
+
+        $htmlHeadBag = $responseContext->get(HtmlHeadBag::class);
+        $htmlHeadBag->setTitle($this->htmlDecoder->inputEncodedToPlainText((string) ($job->pageTitle ?: $job->title)));
+
+        if ($description = (string) ($job->description ?: $job->teaser)) {
+            $htmlHeadBag->setMetaDescription($this->htmlDecoder->htmlToPlainText($description));
+        }
+
+        if ('' !== trim((string) $job->robots)) {
+            $htmlHeadBag->setMetaRobots((string) $job->robots);
+        }
     }
 }

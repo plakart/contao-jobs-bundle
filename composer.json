@@ -18,7 +18,7 @@
   ],
   "require": {
     "php": "^8.3",
-    "contao/core-bundle": "^5.3",
+    "contao/core-bundle": "^5.3 || ^6.0",
     "google/apiclient": "^2.19"
   },
   "conflict": {

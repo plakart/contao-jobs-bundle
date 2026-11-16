@@ -20,7 +20,7 @@ $GLOBALS['TL_DCA']['tl_plakart_jobs_categories'] = array
     // Config
     'config' => array
     (
-        'dataContainer' => DC_TABLE::class,
+        'dataContainer' => DC_Table::class,
         'switchToEdit' => true,
         'enableVersioning' => true,
         'markAsCopy' => 'title',

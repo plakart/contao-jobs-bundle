@@ -73,3 +73,8 @@ $GLOBALS['TL_LANG']['tl_plakart_jobs']['employmentSalaryPer_options'] = [
 // Operations
 $GLOBALS['TL_LANG']['tl_plakart_jobs']['toggle'] = ['Job veröffentlichen/unveröffentlichen', 'Job ID %s veröffentlichen/unveröffentlichen'];
 $GLOBALS['TL_LANG']['tl_plakart_jobs']['feature'] = ['Job hervorheben/zurückstellen', 'Job ID %s hervorheben/zurückstellen'];
+
+// Locations and contact persons
+$GLOBALS['TL_LANG']['tl_plakart_jobs']['contact_legend'] = 'Ansprechpartner';
+$GLOBALS['TL_LANG']['tl_plakart_jobs']['locations'] = ['Standorte', 'Bitte wählen Sie einen oder mehrere Standorte aus. Ist kein Standort gewählt, gilt die unten angegebene Adresse bzw. die Unternehmensadresse.'];
+$GLOBALS['TL_LANG']['tl_plakart_jobs']['contacts'] = ['Ansprechpartner', 'Bitte wählen Sie einen oder mehrere Ansprechpartner aus.'];

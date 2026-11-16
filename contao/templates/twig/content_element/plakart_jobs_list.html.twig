@@ -1,37 +1,55 @@
 {% extends "@Contao/content_element/_base.html.twig" %}
+{% use "@Contao/component/_figure.html.twig" %}
 
+{#
+    Available variables per job: all database fields plus
+      url            URL of the detail page (null without a redirect page)
+      figure         the image (or null)
+      categories     list of categories (title, alias)
+      employmentType list of employment types
+      locations      list of assigned locations
+      contacts       list of assigned contact persons
+#}
 {% block content %}
-    {% if jobs is defined and jobs is iterable %}
-        {% for job in jobs %}
-            {% block jobItem %}
-            <div class="job_item {{ job.cssClass }}">
-                <div class="content-text">
-                    {% block jobHeadline %}
-                        <h2>{{ job.title }}</h2>
-                    {% endblock %}
-                    {% block jobSubheadline %}
-                        {% if job.subheadline %}
-                            <h3>{{ job.subheadline }}</h3>
-                        {% endif %}
-                    {% endblock %}
-                    {% block jobImage %}
-                        {% if job.figure is defined and job.figure %}
-                            {% include '@ContaoCore/Image/Studio/figure.html.twig' with { figure: job.figure } only %}
-                        {% endif %}
-                    {% endblock %}
-                    {% block jobTeaser %}
-                        {{ (job.teaser ?? '')|raw }}
-                    {% endblock %}
-                    {% block jobReadmore %}
-                        {% if job.readerPage %}
-                            <p>
-                                <a href="{{ job.alias }}">{{ 'MSC.more'|trans({}, 'contao_default') }}</a>
-                            </p>
-                        {% endif %}
-                    {% endblock %}
-                </div>
+    {% for job in jobs %}
+        {% block jobItem %}
+        <div class="job_item{% if job.featured %} featured{% endif %} {{ job.cssClass }}">
+            <div class="content-text">
+                {% block jobHeadline %}
+                    <h2>{{ job.title }}</h2>
+                {% endblock %}
+                {% block jobSubheadline %}
+                    {% if job.subheadline %}
+                        <h3>{{ job.subheadline }}</h3>
+                    {% endif %}
+                {% endblock %}
+                {% block jobImage %}
+                    {% if job.figure %}
+                        {% with {figure: job.figure} %}{{ block('figure_component') }}{% endwith %}
+                    {% endif %}
+                {% endblock %}
+                {% block jobTeaser %}
+                    {{ (job.teaser ?? '')|raw }}
+                {% endblock %}
+                {% block jobReadmore %}
+                    {% if job.url %}
+                        <p>
+                            <a href="{{ job.url }}">{{ 'MSC.more'|trans({}, 'contao_default') }}</a>
+                        </p>
+                    {% endif %}
+                {% endblock %}
             </div>
-            {% endblock %}
-        {% endfor %}
-    {% endif %}
+        </div>
+        {% endblock %}
+    {% endfor %}
+
+    {% block pagination %}
+        {% if pagination %}
+            {# Contao >= 5.7 #}
+            {{ include('@Contao/component/_pagination.html.twig', {pagination: pagination}, with_context = false) }}
+        {% elseif pagination_html %}
+            {# Contao 5.3 #}
+            {{ pagination_html|raw }}
+        {% endif %}
+    {% endblock %}
 {% endblock %}

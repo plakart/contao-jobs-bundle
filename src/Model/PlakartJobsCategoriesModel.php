@@ -15,24 +15,22 @@ declare(strict_types=1);
 namespace Plakart\ContaoJobsBundle\Model;
 
 use Contao\Model;
-use Contao\System;
 
 class PlakartJobsCategoriesModel extends Model
 {
     protected static $strTable = 'tl_plakart_jobs_categories';
 
-    public static function findAllReturnAsOptionsArray():array
+    /**
+     * @return array<string, string> alias => title
+     */
+    public static function findAllReturnAsOptionsArray(): array
     {
-        if($all = self::findAll())
-        {
-            $array = [];
-            while($all->next()) {
-                $array[$all->alias] = $all->title;
-            }
+        $options = [];
 
-            return $array;
+        foreach (self::findAll(['order' => 'title ASC']) ?? [] as $category) {
+            $options[(string) $category->alias] = (string) $category->title;
         }
 
-        return [];
+        return $options;
     }
 }

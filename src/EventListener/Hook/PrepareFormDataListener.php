@@ -17,17 +17,11 @@ namespace Plakart\ContaoJobsBundle\EventListener\Hook;
 use Contao\CoreBundle\DependencyInjection\Attribute\AsHook;
 use Contao\Form;
 use Contao\FormFieldModel;
-use Psr\Log\LoggerInterface;
 use Plakart\ContaoJobsBundle\Model\PlakartJobsModel;
 
 #[AsHook('prepareFormData')]
 class PrepareFormDataListener
 {
-    public function __construct(
-        private readonly LoggerInterface $logger,
-    ) {
-    }
-
     public function __invoke(
         array &$submittedData,
         array $labels,

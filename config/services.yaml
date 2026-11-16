@@ -3,8 +3,13 @@ services:
     autowire: true
     autoconfigure: true
 
-  Plakart\ContaoJobsBundle\Helper\GoogleApi: ~
-
   Plakart\ContaoJobsBundle\:
     resource: ../src
     exclude: ../src/{ContaoManager,Helper,DependencyInjection,Model,ContaoJobsBundle.php}
+
+  Plakart\ContaoJobsBundle\Helper\GoogleApi: ~
+
+  # The pagination factory is only available in Contao 5.7 and later
+  Plakart\ContaoJobsBundle\Controller\ContentElement\JobsListingController:
+    arguments:
+      $paginationFactory: '@?contao.pagination.factory'

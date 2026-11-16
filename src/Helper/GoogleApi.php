@@ -15,7 +15,6 @@ declare(strict_types=1);
 namespace Plakart\ContaoJobsBundle\Helper;
 
 use Contao\Config;
-use Contao\ContentModel;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\CoreBundle\Routing\ContentUrlGenerator;
@@ -29,6 +28,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Plakart\ContaoJobsBundle\Routing\ReaderPageResolver;
 use Throwable;
 
 class GoogleApi
@@ -39,16 +39,30 @@ class GoogleApi
     private ?Google_Client $client = null;
     private ?string $serviceAccountPath = null;
     private bool $analysisMode = false;
+    private bool $initialized = false;
 
     public function __construct(
         private readonly ContaoFramework $framework,
         private readonly ContentUrlGenerator $contentUrlGenerator,
+        private readonly ReaderPageResolver $readerPageResolver,
         #[Autowire('%kernel.project_dir%')]
         private readonly string $projectDir,
         #[Autowire(service: 'monolog.logger.contao')]
         private readonly LoggerInterface $logger,
-    )
+    ) {
+    }
+
+    /**
+     * Sets up the Google client on first use, so that merely instantiating the
+     * service (e.g. as a dependency of a DCA callback) stays cheap.
+     */
+    private function initialize(): void
     {
+        if ($this->initialized) {
+            return;
+        }
+
+        $this->initialized = true;
         $this->framework->initialize();
         $this->analysisMode = $this->isAnalysisMode();
 
@@ -174,9 +188,8 @@ class GoogleApi
             $requestUrls = [];
 
             if ($jobs = PlakartJobsModel::findBy('published', 1)) {
-                $time = time();
                 while ($jobs->next()) {
-                    if ((int) $jobs->anzeigen_bis >= $time || empty($jobs->anzeigen_bis)) {
+                    if ($jobs->current()->isVisible()) {
                         try {
                             $jobUrl = $this->contentUrlGenerator->generate(
                                 $readerPage,
@@ -280,6 +293,8 @@ class GoogleApi
 
     private function isClientAvailable(): bool
     {
+        $this->initialize();
+
         if (null !== $this->client) {
             return true;
         }
@@ -409,24 +424,7 @@ class GoogleApi
             }
         }
 
-        $listings = ContentModel::findBy(
-            ['type=?', 'jumpTo>?'],
-            ['jobs_listing', 0],
-            ['order' => 'id ASC']
-        );
-
-        if (null === $listings) {
-            return null;
-        }
-
-        while ($listings->next()) {
-            $page = PageModel::findById((int) $listings->jumpTo);
-            if (null !== $page) {
-                return $page;
-            }
-        }
-
-        return null;
+        return $this->readerPageResolver->findFirst();
     }
 
     private function log(string $level, string $message, string $action, array $extra = []): void

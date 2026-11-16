@@ -14,12 +14,12 @@ declare(strict_types=1);
 
 namespace Plakart\ContaoJobsBundle\EventListener\Sitemap;
 
-use Contao\ContentModel;
 use Contao\CoreBundle\Event\ContaoCoreEvents;
 use Contao\CoreBundle\Event\SitemapEvent;
 use Contao\CoreBundle\Routing\ContentUrlGenerator;
 use Contao\PageModel;
 use Plakart\ContaoJobsBundle\Model\PlakartJobsModel;
+use Plakart\ContaoJobsBundle\Routing\ReaderPageResolver;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Routing\Exception\ExceptionInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -29,6 +29,7 @@ class JobsSitemapListener
 {
     public function __construct(
         private readonly ContentUrlGenerator $contentUrlGenerator,
+        private readonly ReaderPageResolver $readerPageResolver,
     ) {
     }
 
@@ -40,18 +41,10 @@ class JobsSitemapListener
             return;
         }
 
-        $jobs = PlakartJobsModel::findBy('published', 1);
-
-        if (null === $jobs) {
-            return;
-        }
-
         $urls = [];
 
-        while ($jobs->next()) {
-            $job = $jobs->current();
-
-            if (!$this->isJobIndexable($job)) {
+        foreach (PlakartJobsModel::findBy('published', 1) ?? [] as $job) {
+            if (!$job->isVisible() || str_starts_with((string) $job->robots, 'noindex')) {
                 continue;
             }
 
@@ -59,8 +52,8 @@ class JobsSitemapListener
                 try {
                     $url = $this->contentUrlGenerator->generate(
                         $readerPage,
-                        ['parameters' => '/' . $job->alias],
-                        UrlGeneratorInterface::ABSOLUTE_URL
+                        ['parameters' => '/'.$job->alias],
+                        UrlGeneratorInterface::ABSOLUTE_URL,
                     );
                 } catch (ExceptionInterface) {
                     continue;
@@ -76,65 +69,17 @@ class JobsSitemapListener
     }
 
     /**
+     * @param array<int> $rootPageIds
+     *
      * @return array<int, PageModel>
      */
     private function findReaderPages(array $rootPageIds): array
     {
-        $listings = ContentModel::findBy(
-            ['type=?', 'jumpTo>?'],
-            ['jobs_listing', 0]
+        $rootPageIds = array_map('intval', $rootPageIds);
+
+        return array_filter(
+            $this->readerPageResolver->findAll(),
+            static fn (PageModel $page): bool => \in_array((int) $page->loadDetails()->rootId, $rootPageIds, true),
         );
-
-        if (null === $listings) {
-            return [];
-        }
-
-        $readerPages = [];
-
-        while ($listings->next()) {
-            $readerPageId = (int) $listings->jumpTo;
-
-            if (isset($readerPages[$readerPageId])) {
-                continue;
-            }
-
-            $readerPage = PageModel::findById($readerPageId);
-
-            if (null === $readerPage) {
-                continue;
-            }
-
-            $readerPage->loadDetails();
-
-            if (!\in_array((int) $readerPage->rootId, $rootPageIds, true)) {
-                continue;
-            }
-
-            $readerPages[$readerPageId] = $readerPage;
-        }
-
-        return $readerPages;
-    }
-
-    private function isJobIndexable(PlakartJobsModel $job): bool
-    {
-        $now = time();
-        $start = (int) ($job->start ?? 0);
-        $stop = (int) ($job->stop ?? 0);
-        $robots = (string) ($job->robots ?? '');
-
-        if ($start > 0 && $start > $now) {
-            return false;
-        }
-
-        if ($stop > 0 && $stop <= $now) {
-            return false;
-        }
-
-        if (str_starts_with($robots, 'noindex')) {
-            return false;
-        }
-
-        return true;
     }
 }
