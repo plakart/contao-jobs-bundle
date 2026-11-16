@@ -6,7 +6,7 @@ Google for Jobs melden.
 ## Features
 
 - **Stellenangebote** mit Teaser, Bild, Inhaltselementen, Gehalt, Beschäftigungsart und Bewerbungsfrist
-- **Kategorien, Standorte und Ansprechpartner** zentral anlegen und Jobs zuweisen
+- **Kategorien, Standorte, Ansprechpartner und Unternehmen** zentral anlegen und Jobs zuweisen
 - **Job-Liste** als Inhaltselement mit Kategorie-Filter, Hervorhebung, Sortierung und Pagination
 - **Job-Leser** als Frontend-Modul mit optionalem Bewerbungsformular
 - **Formularfeld „Stellenangebote“**, das den Job automatisch an das Bewerbungsformular übergibt
@@ -28,7 +28,7 @@ vendor/bin/contao-console contao:migrate
 
 ## Einrichtung in Kürze
 
-1. Unter **Jobs → Einstellungen** die Unternehmensangaben eintragen.
+1. Unter **Jobs → Unternehmen** das einstellende Unternehmen anlegen (bei Bedarf mehrere).
 2. Unter **Jobs** Kategorien, Standorte und Ansprechpartner anlegen (optional) und Jobs erfassen.
 3. Ein Frontend-Modul **Job-Leser** anlegen und auf einer Detailseite einbinden.
 4. Auf der Übersichtsseite das Inhaltselement **Job-Liste** einfügen und die Detailseite als Weiterleitungsseite wählen.
@@ -43,7 +43,8 @@ vendor/bin/contao-console contao:migrate
 | Kategorien | Kategorien zum Filtern der Job-Liste |
 | Standorte | Standorte, die einem Job (auch mehrere) zugewiesen werden |
 | Ansprechpartner | Ansprechpartner mit Position, E-Mail, Telefon und Bild |
-| Einstellungen | Unternehmensangaben und Google-for-Jobs-Optionen |
+| Unternehmen | Einstellende Unternehmen mit Adresse, Website und Logo |
+| Einstellungen | Google-for-Jobs-Optionen |
 
 ### Inhaltselement „Job-Liste“
 
@@ -53,6 +54,17 @@ vendor/bin/contao-console contao:migrate
 - Gesamtzahl und Elemente pro Seite (Pagination)
 
 Angezeigt werden nur veröffentlichte Jobs innerhalb ihres Anzeigezeitraums.
+
+### Unternehmen
+
+Gibt es nur ein Unternehmen, gilt es automatisch für alle Stellenangebote und
+ist im Job vorausgewählt. Bei mehreren Unternehmen wird jedem Job eines
+zugewiesen (Pflichtfeld); die Job-Liste im Backend zeigt es als Label an und
+lässt sich danach filtern. Das Unternehmen erscheint als `hiringOrganization`
+im Google-for-Jobs-Markup und steht in den Templates als `company` bereit.
+
+Beim Update werden die bisherigen Unternehmensangaben aus den Einstellungen
+per Migration als Unternehmen übernommen.
 
 ### Frontend-Modul „Job-Leser“
 
@@ -78,8 +90,8 @@ wird bevorzugt die Seite innerhalb des aktuellen Startpunkts verwendet.
 
 ### Google for Jobs
 
-- **Strukturierte Daten:** In den Job-Einstellungen „Strukturierte Daten ausgeben“ aktivieren. Die mit dem Google-Symbol markierten Felder fließen in das Markup ein.
-- **Standort:** Zugewiesene Standorte werden als `jobLocation` ausgegeben. Ohne Standort gilt die Adresse im Job, ersatzweise die Unternehmensadresse.
+- **Strukturierte Daten:** Unter **Jobs → Einstellungen** „Strukturierte Daten ausgeben“ aktivieren. Die mit dem Google-Symbol markierten Felder fließen in das Markup ein.
+- **Standort:** Zugewiesene Standorte werden als `jobLocation` ausgegeben. Ohne Standort gilt die Adresse im Job, ersatzweise die Adresse des Unternehmens.
 - **Sitemap:** Veröffentlichte Jobs ohne `noindex` werden automatisch in die Sitemap aufgenommen.
 - **Indexing API:** Service-Account-Schlüssel (JSON) nach `var/` hochladen, dann „Google Indexing API verwenden“ aktivieren und den Dateinamen eintragen. Änderungen werden beim Speichern, Löschen und Wiederherstellen gemeldet, zusätzlich läuft täglich ein Cronjob.
 
@@ -94,3 +106,7 @@ Alle Templates sind Twig-Templates und lassen sich wie gewohnt überschreiben:
 In der Job-Liste steht die URL der Detailseite als `job.url` zur Verfügung.
 `job.alias` enthält aus Gründen der Abwärtskompatibilität ebenfalls die URL,
 sobald eine Weiterleitungsseite gewählt ist.
+
+## Lizenz
+
+LGPL-3.0-or-later, siehe [LICENSE](LICENSE).

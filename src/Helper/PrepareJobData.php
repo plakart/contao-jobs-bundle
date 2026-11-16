@@ -14,13 +14,13 @@ declare(strict_types=1);
 
 namespace Plakart\ContaoJobsBundle\Helper;
 
-use Contao\Config;
 use Contao\CoreBundle\Image\Studio\Figure;
 use Contao\FilesModel;
 use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
 use Plakart\ContaoJobsBundle\Model\PlakartJobsCategoriesModel;
+use Plakart\ContaoJobsBundle\Model\PlakartJobsCompaniesModel;
 use Plakart\ContaoJobsBundle\Model\PlakartJobsContactsModel;
 use Plakart\ContaoJobsBundle\Model\PlakartJobsLocationsModel;
 use Plakart\ContaoJobsBundle\Model\PlakartJobsModel;
@@ -32,7 +32,8 @@ class PrepareJobData
 
     /**
      * Returns the job data as an array for the templates: the database row plus
-     * the resolved image, categories, employment types, locations and contacts.
+     * the resolved image, categories, employment types, locations, contacts and
+     * company.
      *
      * @return array<string, mixed>
      */
@@ -45,6 +46,7 @@ class PrepareJobData
         $data['employmentType'] = self::employmentType($job->employmentType);
         $data['locations'] = self::locations($job->locations);
         $data['contacts'] = self::contacts($job->contacts, $contactImageSize);
+        $data['company'] = self::company($job);
 
         return $data;
     }
@@ -140,52 +142,29 @@ class PrepareJobData
         return $contacts;
     }
 
-    public static function gfjCompanyName(): string
+    /**
+     * Returns the company of the job (the assigned one or the only existing
+     * one) including the absolute URL of its logo.
+     *
+     * @return array<string, mixed>|null
+     */
+    public static function company(PlakartJobsModel $job): array|null
     {
-        return (string) Config::get('company');
-    }
-
-    public static function gfjCompanyStreetAddress(string|null $street = null, string|null $streetNr = null): string
-    {
-        if ($street) {
-            return trim($street.' '.($streetNr ?? ''));
+        if (!$company = PlakartJobsCompaniesModel::findForJob($job)) {
+            return null;
         }
 
-        return trim(Config::get('street').' '.Config::get('streetNr'));
-    }
+        $row = $company->row();
+        $row['logoUrl'] = '';
 
-    public static function gfjCompanyZip(string|null $zip = null): string
-    {
-        return (string) ($zip ?: Config::get('zip'));
-    }
+        if ($company->logo && $logo = FilesModel::findByUuid($company->logo)) {
+            $request = System::getContainer()->get('request_stack')->getCurrentRequest();
+            $path = implode('/', array_map('rawurlencode', explode('/', $logo->path)));
 
-    public static function gfjCompanyCity(string|null $city = null): string
-    {
-        return (string) ($city ?: Config::get('city'));
-    }
-
-    public static function gfjCompanyCountry(string|null $country = null): string
-    {
-        return strtoupper((string) ($country ?: Config::get('gfjCountry') ?: self::DEFAULT_COUNTRY));
-    }
-
-    public static function gfjCompanyLogo(): string
-    {
-        $src = Config::get('logo');
-
-        if (!$src || !$logo = FilesModel::findByUuid($src)) {
-            return '';
+            $row['logoUrl'] = ($request?->getSchemeAndHttpHost() ?? '').'/'.$path;
         }
 
-        $request = System::getContainer()->get('request_stack')->getCurrentRequest();
-        $path = implode('/', array_map('rawurlencode', explode('/', $logo->path)));
-
-        return ($request?->getSchemeAndHttpHost() ?? '').'/'.$path;
-    }
-
-    public static function gfjCompanyUrl(): string
-    {
-        return (string) Config::get('url');
+        return $row;
     }
 
     /**
@@ -211,20 +190,25 @@ class PrepareJobData
                 trim(($location['street'] ?? '').' '.($location['streetNr'] ?? '')),
                 (string) ($location['city'] ?? ''),
                 (string) ($location['zip'] ?? ''),
-                self::gfjCompanyCountry($location['country'] ?? null),
+                strtoupper((string) ($location['country'] ?? '') ?: self::DEFAULT_COUNTRY),
             );
 
             $places[] = $place;
         }
 
         if ([] === $places) {
+            $company = $job['company'] ?? [];
+            $street = ($job['street'] ?? '')
+                ? trim($job['street'].' '.($job['streetNr'] ?? ''))
+                : trim(($company['street'] ?? '').' '.($company['streetNr'] ?? ''));
+
             return [
                 '@type' => 'Place',
                 'address' => self::gfjPostalAddress(
-                    self::gfjCompanyStreetAddress($job['street'] ?? null, $job['streetNr'] ?? null),
-                    self::gfjCompanyCity($job['city'] ?? null),
-                    self::gfjCompanyZip($job['zip'] ?? null),
-                    self::gfjCompanyCountry(),
+                    $street,
+                    (string) (($job['city'] ?? '') ?: ($company['city'] ?? '')),
+                    (string) (($job['zip'] ?? '') ?: ($company['zip'] ?? '')),
+                    strtoupper((string) ($company['country'] ?? '') ?: self::DEFAULT_COUNTRY),
                 ),
             ];
         }
@@ -256,12 +240,14 @@ class PrepareJobData
             $gfj['employmentType'] = 1 === \count($job['employmentType']) ? $job['employmentType'][0] : $job['employmentType'];
         }
 
-        $gfj['hiringOrganization'] = array_filter([
-            '@type' => 'Organization',
-            'name' => self::gfjCompanyName(),
-            'sameAs' => self::gfjCompanyUrl(),
-            'logo' => self::gfjCompanyLogo(),
-        ]);
+        if ($company = $job['company'] ?? null) {
+            $gfj['hiringOrganization'] = array_filter([
+                '@type' => 'Organization',
+                'name' => StringUtil::decodeEntities((string) $company['title']),
+                'sameAs' => (string) $company['url'],
+                'logo' => (string) $company['logoUrl'],
+            ]);
+        }
 
         $gfj['jobLocation'] = self::gfjJobLocation($job);
 

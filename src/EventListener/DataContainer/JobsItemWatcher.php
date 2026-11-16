@@ -20,6 +20,8 @@ use Contao\Message;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 #[AsCallback(table: 'tl_plakart_jobs', target: 'config.onload')]
+#[AsCallback(table: 'tl_plakart_jobs_companies', target: 'config.onload')]
+#[AsCallback(table: 'tl_plakart_jobs_locations', target: 'config.onload')]
 class JobsItemWatcher
 {
     private $requestStack;

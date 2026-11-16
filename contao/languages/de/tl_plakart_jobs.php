@@ -76,5 +76,6 @@ $GLOBALS['TL_LANG']['tl_plakart_jobs']['feature'] = ['Job hervorheben/zurückste
 
 // Locations and contact persons
 $GLOBALS['TL_LANG']['tl_plakart_jobs']['contact_legend'] = 'Ansprechpartner';
-$GLOBALS['TL_LANG']['tl_plakart_jobs']['locations'] = ['Standorte', 'Bitte wählen Sie einen oder mehrere Standorte aus. Ist kein Standort gewählt, gilt die unten angegebene Adresse bzw. die Unternehmensadresse.'];
+$GLOBALS['TL_LANG']['tl_plakart_jobs']['locations'] = ['Standorte', 'Bitte wählen Sie einen oder mehrere Standorte aus. Ist kein Standort gewählt, gilt die unten angegebene Adresse bzw. die Adresse des Unternehmens.'];
 $GLOBALS['TL_LANG']['tl_plakart_jobs']['contacts'] = ['Ansprechpartner', 'Bitte wählen Sie einen oder mehrere Ansprechpartner aus.'];
+$GLOBALS['TL_LANG']['tl_plakart_jobs']['company'] = ['Unternehmen', 'Das einstellende Unternehmen. Gibt es nur ein Unternehmen, ist es automatisch ausgewählt.'];

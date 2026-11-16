@@ -23,6 +23,7 @@ use Contao\PageModel;
 use Google_Client;
 use Google_Service_Indexing;
 use Google_Service_Indexing_UrlNotification;
+use Plakart\ContaoJobsBundle\Model\PlakartJobsCompaniesModel;
 use Plakart\ContaoJobsBundle\Model\PlakartJobsModel;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -388,7 +389,9 @@ class GoogleApi
             }
         }
 
-        $configUrl = trim((string) (Config::get('url') ?? ''));
+        // Fall back to the website of the first company
+        $company = PlakartJobsCompaniesModel::findOneBy(["tl_plakart_jobs_companies.url!=''"], [], ['order' => 'tl_plakart_jobs_companies.id ASC']);
+        $configUrl = trim((string) ($company?->url ?? ''));
         if ('' !== $configUrl) {
             $configUrl = preg_match('#^https?://#i', $configUrl) ? $configUrl : 'https://' . ltrim($configUrl, '/');
             $host = (string) (parse_url($configUrl, \PHP_URL_HOST) ?? '');

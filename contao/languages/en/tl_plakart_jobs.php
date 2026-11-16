@@ -78,3 +78,4 @@ $GLOBALS['TL_LANG']['tl_plakart_jobs']['feature'] = ['Feature/unfeature job', 'F
 $GLOBALS['TL_LANG']['tl_plakart_jobs']['contact_legend'] = 'Contact persons';
 $GLOBALS['TL_LANG']['tl_plakart_jobs']['locations'] = ['Locations', 'Please choose one or more locations. If no location is selected, the address below or the company address is used.'];
 $GLOBALS['TL_LANG']['tl_plakart_jobs']['contacts'] = ['Contact persons', 'Please choose one or more contact persons.'];
+$GLOBALS['TL_LANG']['tl_plakart_jobs']['company'] = ['Company', 'The hiring company. If there is only one company, it is selected automatically.'];

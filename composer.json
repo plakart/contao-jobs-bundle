@@ -2,6 +2,7 @@
   "name": "plakart/contao-jobs-bundle",
   "type": "contao-bundle",
   "description": "Stellenangebote pflegen + export nach GoogleForJobs",
+  "license": "LGPL-3.0-or-later",
   "authors": [
     {
       "name": "Agentur plakart",

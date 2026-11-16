@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 use Contao\System;
 use Plakart\ContaoJobsBundle\Model\PlakartJobsCategoriesModel;
+use Plakart\ContaoJobsBundle\Model\PlakartJobsCompaniesModel;
 use Plakart\ContaoJobsBundle\Model\PlakartJobsContactsModel;
 use Plakart\ContaoJobsBundle\Model\PlakartJobsLocationsModel;
 use Plakart\ContaoJobsBundle\Model\PlakartJobsModel;
@@ -36,6 +37,9 @@ $jobModules = [
         'jobsContacts' => [
             'tables' => ['tl_plakart_jobs_contacts'],
         ],
+        'jobsCompanies' => [
+            'tables' => ['tl_plakart_jobs_companies'],
+        ],
         'jobsSettings' => [
             'tables' => ['tl_plakart_jobs_settings'],
         ],
@@ -57,6 +61,7 @@ if (System::getContainer()->get('contao.routing.scope_matcher')->isBackendReques
 // Models
 $GLOBALS['TL_MODELS']['tl_plakart_jobs'] = PlakartJobsModel::class;
 $GLOBALS['TL_MODELS']['tl_plakart_jobs_categories'] = PlakartJobsCategoriesModel::class;
+$GLOBALS['TL_MODELS']['tl_plakart_jobs_companies'] = PlakartJobsCompaniesModel::class;
 $GLOBALS['TL_MODELS']['tl_plakart_jobs_locations'] = PlakartJobsLocationsModel::class;
 $GLOBALS['TL_MODELS']['tl_plakart_jobs_contacts'] = PlakartJobsContactsModel::class;
 

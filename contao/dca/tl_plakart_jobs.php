@@ -67,12 +67,14 @@ $GLOBALS['TL_DCA']['tl_plakart_jobs'] = array
             (
                 'href'                => 'act=toggle&amp;field=published',
                 'icon'                => 'visible.svg',
+                'primary'             => true,
                 'showInHeader'        => true
             ),
             'feature' => array
             (
                 'href'                => 'act=toggle&amp;field=featured',
-                'icon'                => 'featured.svg'
+                'icon'                => 'featured.svg',
+                'primary'             => true
             ),
             'show'
         )
@@ -83,7 +85,7 @@ $GLOBALS['TL_DCA']['tl_plakart_jobs'] = array
     (
         '__selector__'                => array('addImage', 'addForm', 'overwriteMeta'),
         'default'                     => '
-            {title_legend},title,featured,alias;
+            {title_legend},title,featured,alias,company;
             {date_legend},date,time;
             {job_legend},categories,locations,street,streetNr,zip,city,employmentSalary,employmentSalaryMin,employmentSalaryMax,employmentSalaryPer,employmentValidThrough,employmentType;
             {meta_legend},pageTitle,robots,description;
@@ -134,6 +136,16 @@ $GLOBALS['TL_DCA']['tl_plakart_jobs'] = array
             'inputType'               => 'text',
             'eval'                    => ['rgxp'=>'alias', 'doNotCopy'=>true, 'unique'=>true, 'maxlength'=>255, 'tl_class'=>'w50'],
             'sql'                     => ['type' => 'binary', 'length' => 255, 'notnull' => true, 'default' => '']
+        ),
+        'company' => array
+        (
+            'exclude'                 => true,
+            'filter'                  => true,
+            'inputType'               => 'select',
+            'foreignKey'              => 'tl_plakart_jobs_companies.title',
+            'eval'                    => ['includeBlankOption'=>true, 'chosen'=>true, 'tl_class'=>'gfj w50'],
+            'sql'                     => ['type' => 'integer', 'unsigned' => true, 'default' => 0],
+            'relation'                => ['type'=>'hasOne', 'load'=>'lazy']
         ),
         'date' => array
         (

@@ -27,3 +27,4 @@ $GLOBALS['TL_LANG']['FMD']['plakartJobs'] = 'Jobs';
 $GLOBALS['TL_LANG']['FMD']['jobs_reader'] = ['Job reader', 'Displays a single job offer.'];
 $GLOBALS['TL_LANG']['MOD']['jobsLocations'] = ['Locations', 'Manage locations that can be assigned to job offers'];
 $GLOBALS['TL_LANG']['MOD']['jobsContacts'] = ['Contact persons', 'Manage contact persons that can be assigned to job offers'];
+$GLOBALS['TL_LANG']['MOD']['jobsCompanies'] = ['Companies', 'Manage companies that can be assigned to job offers'];

@@ -27,3 +27,4 @@ $GLOBALS['TL_LANG']['FMD']['plakartJobs'] = 'Jobs';
 $GLOBALS['TL_LANG']['FMD']['jobs_reader'] = ['Job-Leser', 'Zeigt ein einzelnes Stellenangebot an.'];
 $GLOBALS['TL_LANG']['MOD']['jobsLocations'] = ['Standorte', 'Standorte verwalten, die Stellenangeboten zugewiesen werden können'];
 $GLOBALS['TL_LANG']['MOD']['jobsContacts'] = ['Ansprechpartner', 'Ansprechpartner verwalten, die Stellenangeboten zugewiesen werden können'];
+$GLOBALS['TL_LANG']['MOD']['jobsCompanies'] = ['Unternehmen', 'Unternehmen verwalten, die Stellenangeboten zugewiesen werden können'];
