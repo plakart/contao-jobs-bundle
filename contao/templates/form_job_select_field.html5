@@ -18,6 +18,7 @@ if($alias) {
 }
 ?>
 
+<?php $this->extend('form_row'); ?>
 <?php $this->block('label'); ?>
 <?php if ($this->label && !$alias): ?>
     <label for="ctrl_<?= $this->id ?>"<?php if ($this->class): ?> class="<?= $this->class ?>"<?php endif; ?>>
