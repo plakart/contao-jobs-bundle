@@ -13,9 +13,10 @@ declare(strict_types=1);
  */
 
 // Back end modules
-$GLOBALS['TL_LANG']['MOD']['jobs'] = ['Jobs', 'Liste aller Jobs'];
-$GLOBALS['TL_LANG']['MOD']['jobsCategories'] = ['Job-Kategorien', 'Jobs Kategorien'];
-$GLOBALS['TL_LANG']['MOD']['jobsSettings'] = ['Job-Einstellungen', 'Globale Einstellungen für Stellenangebote'];
+$GLOBALS['TL_LANG']['MOD']['plakartJobs'] = 'Jobs';
+$GLOBALS['TL_LANG']['MOD']['jobsOffers'] = ['Stellenangebote', 'Stellenangebote verwalten'];
+$GLOBALS['TL_LANG']['MOD']['jobsCategories'] = ['Kategorien', 'Kategorien für Stellenangebote verwalten'];
+$GLOBALS['TL_LANG']['MOD']['jobsSettings'] = ['Einstellungen', 'Globale Einstellungen für Stellenangebote'];
 
 // Content elements
 $GLOBALS['TL_LANG']['CTE']['plakartJobs'] = 'Jobs';
@@ -24,5 +25,5 @@ $GLOBALS['TL_LANG']['CTE']['jobs_listing'] = ['Job-Liste', 'Fügt der Seite eine
 // Front end modules
 $GLOBALS['TL_LANG']['FMD']['plakartJobs'] = 'Jobs';
 $GLOBALS['TL_LANG']['FMD']['jobs_reader'] = ['Job-Leser', 'Zeigt ein einzelnes Stellenangebot an.'];
-$GLOBALS['TL_LANG']['MOD']['jobsLocations'] = ['Job-Standorte', 'Standorte verwalten, die Stellenangeboten zugewiesen werden können'];
-$GLOBALS['TL_LANG']['MOD']['jobsContacts'] = ['Job-Ansprechpartner', 'Ansprechpartner verwalten, die Stellenangeboten zugewiesen werden können'];
+$GLOBALS['TL_LANG']['MOD']['jobsLocations'] = ['Standorte', 'Standorte verwalten, die Stellenangeboten zugewiesen werden können'];
+$GLOBALS['TL_LANG']['MOD']['jobsContacts'] = ['Ansprechpartner', 'Ansprechpartner verwalten, die Stellenangeboten zugewiesen werden können'];

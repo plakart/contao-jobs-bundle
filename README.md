@@ -28,22 +28,22 @@ vendor/bin/contao-console contao:migrate
 
 ## Einrichtung in Kürze
 
-1. Unter **System → Job-Einstellungen** die Unternehmensangaben eintragen.
-2. Unter **Inhalte** Kategorien, Standorte und Ansprechpartner anlegen (optional) und Jobs erfassen.
+1. Unter **Jobs → Einstellungen** die Unternehmensangaben eintragen.
+2. Unter **Jobs** Kategorien, Standorte und Ansprechpartner anlegen (optional) und Jobs erfassen.
 3. Ein Frontend-Modul **Job-Leser** anlegen und auf einer Detailseite einbinden.
 4. Auf der Übersichtsseite das Inhaltselement **Job-Liste** einfügen und die Detailseite als Weiterleitungsseite wählen.
 
 ## Erklärung der Funktionen
 
-### Backend-Module
+### Backend-Module (eigene Kategorie „Jobs“)
 
 | Modul | Beschreibung |
 |---|---|
-| Jobs | Stellenangebote samt Inhaltselementen |
-| Job-Kategorien | Kategorien zum Filtern der Job-Liste |
-| Job-Standorte | Standorte, die einem Job (auch mehrere) zugewiesen werden |
-| Job-Ansprechpartner | Ansprechpartner mit Position, E-Mail, Telefon und Bild |
-| Job-Einstellungen | Unternehmensangaben und Google-for-Jobs-Optionen |
+| Stellenangebote | Stellenangebote samt Inhaltselementen |
+| Kategorien | Kategorien zum Filtern der Job-Liste |
+| Standorte | Standorte, die einem Job (auch mehrere) zugewiesen werden |
+| Ansprechpartner | Ansprechpartner mit Position, E-Mail, Telefon und Bild |
+| Einstellungen | Unternehmensangaben und Google-for-Jobs-Optionen |
 
 ### Inhaltselement „Job-Liste“
 

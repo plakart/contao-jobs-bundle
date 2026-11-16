@@ -1,3 +1,9 @@
+/* Back end navigation: icon of the "Jobs" category */
+#tl_navigation .group-plakartJobs {
+    background: url("briefcase.svg") 3px 2px no-repeat;
+}
+
+/* Fields that are relevant for Google for Jobs */
 .gfj {
     h3 > label, fieldset > legend {
         display: inline-flex;

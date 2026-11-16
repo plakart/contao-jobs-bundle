@@ -12,30 +12,47 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
+use Contao\System;
 use Plakart\ContaoJobsBundle\Model\PlakartJobsCategoriesModel;
 use Plakart\ContaoJobsBundle\Model\PlakartJobsContactsModel;
 use Plakart\ContaoJobsBundle\Model\PlakartJobsLocationsModel;
 use Plakart\ContaoJobsBundle\Model\PlakartJobsModel;
 use Plakart\ContaoJobsBundle\Widget\Frontend\JobSelectField;
+use Symfony\Component\HttpFoundation\Request;
 
-// Back end modules
-$GLOBALS['BE_MOD']['content']['jobs'] = [
-    'tables' => ['tl_plakart_jobs', 'tl_content'],
-    'stylesheet' => 'bundles/contaojobs/backend.css',
+// Back end modules: own "Jobs" category right after "Content"
+$jobModules = [
+    'plakartJobs' => [
+        // Must not be named "jobs": Contao >= 5.7 has a core back end module with that name
+        'jobsOffers' => [
+            'tables' => ['tl_plakart_jobs', 'tl_content'],
+        ],
+        'jobsCategories' => [
+            'tables' => ['tl_plakart_jobs_categories'],
+        ],
+        'jobsLocations' => [
+            'tables' => ['tl_plakart_jobs_locations'],
+        ],
+        'jobsContacts' => [
+            'tables' => ['tl_plakart_jobs_contacts'],
+        ],
+        'jobsSettings' => [
+            'tables' => ['tl_plakart_jobs_settings'],
+        ],
+    ],
 ];
-$GLOBALS['BE_MOD']['content']['jobsCategories'] = [
-    'tables' => ['tl_plakart_jobs_categories'],
-];
-$GLOBALS['BE_MOD']['content']['jobsLocations'] = [
-    'tables' => ['tl_plakart_jobs_locations'],
-    'stylesheet' => 'bundles/contaojobs/backend.css',
-];
-$GLOBALS['BE_MOD']['content']['jobsContacts'] = [
-    'tables' => ['tl_plakart_jobs_contacts'],
-];
-$GLOBALS['BE_MOD']['system']['jobsSettings'] = [
-    'tables' => ['tl_plakart_jobs_settings'],
-];
+
+$position = array_search('content', array_keys($GLOBALS['BE_MOD']), true);
+$position = false === $position ? \count($GLOBALS['BE_MOD']) : $position + 1;
+
+$GLOBALS['BE_MOD'] = \array_slice($GLOBALS['BE_MOD'], 0, $position, true) + $jobModules + \array_slice($GLOBALS['BE_MOD'], $position, null, true);
+
+unset($jobModules, $position);
+
+// Back end style sheet (navigation icon and Google for Jobs field markers)
+if (System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest(System::getContainer()->get('request_stack')->getCurrentRequest() ?? Request::create(''))) {
+    $GLOBALS['TL_CSS'][] = 'bundles/contaojobs/backend.css';
+}
 
 // Models
 $GLOBALS['TL_MODELS']['tl_plakart_jobs'] = PlakartJobsModel::class;
